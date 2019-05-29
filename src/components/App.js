@@ -4,6 +4,7 @@ import LinkList from './LinkList';
 import CreateLink from './CreateLink';
 import Header from './Header';
 import Login from './Login';
+import Search from './Search';
 
 const App = () => (
   <Router>
@@ -14,6 +15,7 @@ const App = () => (
           <Route exact path="/" component={LinkList} />
           <Route path="/create" component={CreateLink} />
           <Route path="/login" component={Login} />
+          <Route path="/search" component={Search} />
         </Switch>
       </div>
     </div>
