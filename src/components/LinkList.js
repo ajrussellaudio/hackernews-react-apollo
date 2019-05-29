@@ -3,30 +3,56 @@ import Link from './Link';
 import { Query } from 'react-apollo';
 import gql from 'graphql-tag';
 
-const FEED_QUERY = gql`
+export const FEED_QUERY = gql`
   {
     feed {
       links {
         id
         createdAt
-        description
         url
+        description
+        postedBy {
+          id
+          name
+        }
+        votes {
+          id
+          user {
+            id
+          }
+        }
       }
     }
   }
 `;
 
-const LinkList = () => (
-  <Query query={FEED_QUERY}>
-    {({ loading, error, data }) => {
-      if (loading) return <div>Fetching</div>;
-      if (error) return <div>Error</div>;
+const LinkList = () => {
+  const updateCacheAfterVote = (store, createVote, linkId) => {
+    const data = store.readQuery({ query: FEED_QUERY });
+    const votedLink = data.feed.links.find(link => link.id === linkId);
+    votedLink.votes = createVote.link.votes;
+    store.writeQuery({ query: FEED_QUERY, data });
+  };
 
-      const linksToRender = data.feed.links;
+  return (
+    <Query query={FEED_QUERY}>
+      {({ loading, error, data }) => {
+        if (loading) return <div>Fetching</div>;
+        if (error) return <div>Error</div>;
 
-      return linksToRender.map(link => <Link key={link.id} link={link} />);
-    }}
-  </Query>
-);
+        const linksToRender = data.feed.links;
+
+        return linksToRender.map((link, i) => (
+          <Link
+            key={link.id}
+            link={link}
+            index={i}
+            updateStoreAfterVote={updateCacheAfterVote}
+          />
+        ));
+      }}
+    </Query>
+  );
+};
 
 export default LinkList;
